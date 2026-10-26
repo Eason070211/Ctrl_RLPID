@@ -1,0 +1,76 @@
+# ============================================================
+# TEC RL Control — default configuration
+# ============================================================
+plant:
+  nx: 11                 # cells in x
+  ny: 11                 # cells in y
+  Lx: 0.10               # m
+  Ly: 0.10               # m
+  Lz: 0.002              # m (plate thickness)
+  k_copper: 400.0
+  rho_copper: 8960.0
+  cp_copper: 385.0
+  dt_sub: 0.05           # s, internal PDE substep
+
+tec:
+  P_heat_max_w: 40.0    # resistive heating per patch at u=-1
+  P_cool_max_w: 25.0    # active cooling per patch at u=+1
+
+environment:
+  h_natural: 5.0         # W/m^2K, natural convection
+  h_wind_slope: 12.0     # multiplier on air speed [m/s]
+  h_evap_dry: 25.0       # W/m^2K evaporative at RH=0, on (T-T_air)
+
+control:
+  dt_ctrl: 1.0           # s, lower control loop period
+  t_setpoint: 200.0       # deg C
+  t_initial: 25.0
+  t_air: 25.0
+  v_air: 0.5             # m/s
+  RH: 0.40               # relative humidity 0..1
+  episode_time: 800.0    # s (longer for 25->200 C ramp)
+  u_min: -1.0
+  u_max: 1.0
+
+  # PID gains (retuned for the larger 200 C operating envelope)
+  Kp: 0.60
+  Ki: 0.05
+  Kd: 0.02
+  dt_pid: 1.0
+  out_min: -1.0
+  out_max: 1.0
+  i_limit: 3.0           # anti-windup integral clamp
+
+  # gain search ranges for adaptive PID
+  Kp_range: [0.05, 2.0]
+  Ki_range: [0.005, 0.5]
+  Kd_range: [0.0, 0.10]
+  dKp_scale: 0.05
+  dKi_scale: 0.008
+  dKd_scale: 0.005
+
+rl:
+  ppo_every_steps: 2     # fast adaptive PID: PPO upper-loop period (was 5)
+  event_every_steps: 10  # event-triggered: long horizon
+  min_hold_steps: 8      # minimum PID-gain lock after an update
+  reward:
+    w_temp: 1.0          # -wT * e_norm^2
+    w_energy: 0.15       # -wE * E_norm^2
+    w_du: 0.05           # actuator move penalty
+    w_dK: 0.10           # gain-change penalty
+    overshoot_penalty: 2.0
+    violate_penalty: 20.0
+
+train:
+  total_steps: 600000
+  n_envs: 4
+  lr: 3.0e-4
+  n_steps: 1024
+  batch_size: 128
+  n_epochs: 10
+  gamma: 0.95
+  seed: 42
+
+benchmark:
+  seeds: [42, 123, 2024]
+  humidity_sweep: [0.0, 0.2, 0.4, 0.6, 0.8]
