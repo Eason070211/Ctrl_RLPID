@@ -48,8 +48,12 @@ class TECEnv(gym.Env):
 
     def __init__(self, cfg: dict | None = None, mode: str = "direct",
                  scenario: Scenario | None = None, seed: int = 0,
+<<<<<<< HEAD
                  fixed_scenario: dict | None = None,
                  reward_override: dict | None = None):
+=======
+                 fixed_scenario: dict | None = None):
+>>>>>>> aa7040290db75bbf785c34dae55167c6a63a9ba5
         super().__init__()
         self.cfg = cfg or load_config()
         self.mode = mode
@@ -57,9 +61,13 @@ class TECEnv(gym.Env):
         self.fixed = fixed_scenario
         self.c = self.cfg["control"]
         self.rl = self.cfg["rl"]
+<<<<<<< HEAD
         self.rew_w = dict(self.rl["reward"])
         if reward_override:
             self.rew_w.update(reward_override)
+=======
+        self.rew_w = self.rl["reward"]
+>>>>>>> aa7040290db75bbf785c34dae55167c6a63a9ba5
 
         self.dt_ctrl = self.c["dt_ctrl"]
         self.episode_time = self.c["episode_time"]
@@ -199,8 +207,12 @@ class TECEnv(gym.Env):
             E = self.plant.p_electric / (self.dt_ctrl * 4.0 * 40.0)
             sub = -w["w_temp"] * e * e \
                   - w["w_energy"] * E * E \
+<<<<<<< HEAD
                   - w["w_du"] * (u - self.u_prev) ** 2 \
                   - w.get("w_time", 0.0)
+=======
+                  - w["w_du"] * (u - self.u_prev) ** 2
+>>>>>>> aa7040290db75bbf785c34dae55167c6a63a9ba5
             band = 5.0 if self.mode == "bang_rl" else 3.0
             if abs(T - T_set) > band:
                 sub -= w["violate_penalty"]
