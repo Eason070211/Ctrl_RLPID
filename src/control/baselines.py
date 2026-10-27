@@ -104,9 +104,9 @@ class GainScheduledPID(BaseController):
     name = "gain_scheduled_pid"
 
     def __init__(self, pid_kwargs=None):
-        # wide-band aggressive gains, narrow-band soft gains
+        # near setpoint: high Kp, low Ki (no windup); far: lower Kp, higher Ki (ramp)
         self.bands = [(0.0, 2.0, (2.0, 0.10, 0.02)),     # near setpoint
-                      (2.0, 1e9, (0.8, 0.40, 0.05))]      # far: gentler Ki
+                      (2.0, 1e9, (0.8, 0.40, 0.05))]     # far: ramp with more Ki
         self.pid = DiscretePID(**(pid_kwargs or {}))
         self.reset()
 

@@ -44,7 +44,7 @@ def run_traditional(ctl_factory, scenario, cfg, episode_time=None):
     ctl = ctl_factory()
     dt = c["dt_ctrl"]
     n = int(episode_time / dt)
-    ts, Ts, us, Es = [], [], [], []
+    ts, Ts, us, Es, Tset_hist = [], [], [], [], []
     for k in range(n):
         t = k * dt
         T_air, v, rh, Tset = scenario(t)
@@ -52,7 +52,8 @@ def run_traditional(ctl_factory, scenario, cfg, episode_time=None):
         u = ctl.act({"T": T, "T_set": Tset, "dt": dt, "t": t})
         T = p.step(u, T_air, v, rh, dt)
         ts.append(t); Ts.append(T); us.append(u); Es.append(p.p_electric)
-    return dict(t=np.array(ts), T=np.array(Ts), T_set=np.full_like(Ts, Tset),
+        Tset_hist.append(Tset)
+    return dict(t=np.array(ts), T=np.array(Ts), T_set=np.array(Tset_hist),
                 u=np.array(us), energy=np.array(Es))
 
 

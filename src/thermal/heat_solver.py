@@ -38,16 +38,6 @@ def _patch_indices(nx: int, ny: int):
 
 
 @njit(cache=True, fastmath=True)
-def _tec_heat_load(T_c_local, I, T_air, alpha, R, K, G_hs):
-    """Quasi-steady Peltier heat-pump absorbed at the cold side [W/module]."""
-    denom = K + G_hs - alpha * I
-    T_h = (K * T_c_local + G_hs * T_air + 0.5 * I * I * R) / denom
-    q_c = alpha * I * T_c_local - 0.5 * I * I * R - K * (T_h - T_c_local)
-    P_el = alpha * I * (T_h - T_c_local) + I * I * R
-    return q_c, P_el, T_h
-
-
-@njit(cache=True, fastmath=True)
 def step_plate(T, dx, dy, dt, Lz, rho_cp, k,
                patch_mask,
                I, T_air, v_air, RH,

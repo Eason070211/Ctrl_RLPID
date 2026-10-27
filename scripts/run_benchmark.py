@@ -58,7 +58,7 @@ def main():
             rows.append(m)
             if sc_name == "nominal":
                 traj[name] = out
-            print(f"  {name:18s} MAE={m['MAE']:.3f} IAE={m['IAE']:.0f} "
+            print(f"  {name:18s} MAE_ss={m['MAE_steady']:.3f} IAE={m['IAE']:.0f} "
                   f"E={m['energy_kJ']:.1f}kJ over={m['overshoot_pct']:.1f}%")
         for name, model in rl_modes.items():
             if model is None:
@@ -71,7 +71,7 @@ def main():
             rows.append(m)
             if sc_name == "nominal":
                 traj[name] = out
-            print(f"  {name:18s} MAE={m['MAE']:.3f} IAE={m['IAE']:.0f} "
+            print(f"  {name:18s} MAE_ss={m['MAE_steady']:.3f} IAE={m['IAE']:.0f} "
                   f"E={m['energy_kJ']:.1f}kJ over={m['overshoot_pct']:.1f}%")
 
     df = pd.DataFrame(rows)
@@ -97,8 +97,8 @@ def main():
     fig, ax = plt.subplots(figsize=(7, 5))
     for name, g in hum.groupby("controller"):
         g = g.sort_values("RH")
-        ax.plot(g.RH, g.MAE, marker="o", label=name)
-    ax.set_xlabel("Relative humidity"); ax.set_ylabel("MAE [°C]")
+        ax.plot(g.RH, g.MAE_steady, marker="o", label=name)
+    ax.set_xlabel("Relative humidity"); ax.set_ylabel("MAE_steady [°C]")
     ax.set_title("Humidity robustness: MAE vs RH"); ax.legend(fontsize=8)
     ax.grid(alpha=0.3)
     fig.tight_layout(); fig.savefig("results/figures/humidity_sweep.png", dpi=130)
@@ -110,8 +110,8 @@ def main():
     fig, ax = plt.subplots(figsize=(7, 5))
     for name, g in wind.groupby("controller"):
         g = g.sort_values("v")
-        ax.plot(g.v, g.MAE, marker="s", label=name)
-    ax.set_xlabel("Air speed [m/s]"); ax.set_ylabel("MAE [°C]")
+        ax.plot(g.v, g.MAE_steady, marker="s", label=name)
+    ax.set_xlabel("Air speed [m/s]"); ax.set_ylabel("MAE_steady [°C]")
     ax.set_title("Wind robustness: MAE vs v_air"); ax.legend(fontsize=8)
     ax.grid(alpha=0.3)
     fig.tight_layout(); fig.savefig("results/figures/wind_sweep.png", dpi=130)
@@ -120,7 +120,7 @@ def main():
     # ---- table summary (nominal + hot air) ----
     summary = df[df.scenario.isin(["nominal", "hot_air_step"])].pivot_table(
         index="controller", columns="scenario",
-        values=["MAE", "IAE", "energy_kJ", "overshoot_pct", "settle_time_s"])
+        values=["MAE_steady", "IAE", "energy_kJ", "overshoot_pct", "settle_time_s"])
     summary.to_csv("results/tables/summary.csv")
     print("[bench] wrote results/tables/summary.csv")
     print(summary.round(2))
